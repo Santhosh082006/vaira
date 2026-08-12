@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vaira - Intelligent Warehouse Management System
 
-## Getting Started
+Vaira is a modern, AI-powered Warehouse Management System (WMS) built with Next.js, Prisma, and PostgreSQL. It provides a comprehensive suite of tools for managing inventory, tracking shipments, forecasting stock risks, and fulfilling orders—all wrapped in a premium, enterprise-grade UI.
 
-First, run the development server:
+## Features
 
+- **Inventory Tracking:** Real-time visibility into stock levels across multiple warehouses, zones, racks, and bins.
+- **Order Management:** End-to-end workflows for Purchase Orders (Inbound) and Sales Orders (Outbound).
+- **AI-Powered Insights:** Uses Gemini AI to analyze stock trajectory, detect out-of-stock risks, and provide business summaries.
+- **Natural Language Search:** Ask questions like *"Show me low stock electronics"* to instantly query the database without writing SQL.
+- **Role-Based Access Control:** Secure authentication with NextAuth (Admin, Manager, Staff, Viewer).
+- **Export & Reporting:** One-click Excel/PDF exports and interactive charts via Recharts.
+
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), React, Tailwind CSS, shadcn/ui, Lucide Icons, Recharts
+- **Backend:** Next.js Server Actions & API Routes, Prisma ORM
+- **Database:** PostgreSQL
+- **AI Integration:** Google GenAI SDK (Gemini 1.5 Flash/Pro)
+- **Authentication:** NextAuth.js (Credentials Provider)
+
+## Getting Started (Local Development)
+
+### Prerequisites
+- Node.js 18+
+- A local PostgreSQL instance (or use Prisma Postgres local dev)
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Copy `.env.example` to `.env` and fill in your details:
+```bash
+cp .env.example .env
+```
+Ensure your `.env` contains:
+```env
+DATABASE_URL="postgres://postgres:password@localhost:5432/vaira?schema=public"
+NEXTAUTH_SECRET="your-super-secret-string"
+NEXTAUTH_URL="http://localhost:3000"
+GEMINI_API_KEY="your-gemini-api-key"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Database Setup
+Push the schema to your database and generate the Prisma Client:
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Seed Initial Data
+Populate the database with a test admin user, warehouses, and products:
+```bash
+npx tsx prisma/seed.ts
+```
+*Note: The default admin login is `admin@vaira.app` / `password`.*
 
-## Learn More
+### 5. Run the Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment to Vercel (Production)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Vaira is optimized for Vercel deployment. 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Push your code to GitHub.**
+2. **Import the project in Vercel.**
+3. **Configure Environment Variables in Vercel:**
+   - `DATABASE_URL`: Your production PostgreSQL URL (e.g., Supabase, Neon, AWS RDS).
+   - `NEXTAUTH_SECRET`: Generate a secure random string (e.g., `openssl rand -base64 32`).
+   - `NEXTAUTH_URL`: Your Vercel production URL (e.g., `https://vaira-wms.vercel.app`).
+   - `GEMINI_API_KEY`: Your production Gemini API key.
+4. **Deploy.** Vercel will automatically run `npm run build` which includes TypeScript checks and production optimizations.
+5. **Post-Deployment:** Run the seed script on your production database if you need initial configuration.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed information on the database schema, API routing, and AI integration patterns.
