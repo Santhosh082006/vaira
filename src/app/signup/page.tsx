@@ -20,6 +20,14 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Strict Password Validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must be at least 8 characters long and contain both uppercase and lowercase letters, at least one number, and at least one special character (e.g. !, $, @, %).');
+      return;
+    }
+
     setLoading(true);
 
     try {
