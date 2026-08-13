@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
@@ -32,8 +32,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, user: { email: user.email, name: user.name } }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error);
-    return NextResponse.json({ error: 'Something went wrong during signup' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Something went wrong during signup' }, { status: 500 });
   }
 }
