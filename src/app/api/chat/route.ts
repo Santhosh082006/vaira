@@ -4,6 +4,11 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { calculateDynamicReorderPoints } from '@/lib/services/demandForecasting';
 import { detectAnomalies } from '@/lib/services/anomalyDetection';
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ 
+  apiKey: process.env.GEMINI_API_KEY || 'MISSING_GEMINI_KEY' 
+});
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -17,9 +22,11 @@ export async function POST(req: Request) {
     messages,
     system: `You are Vaira's Operations Assistant. 
     You are an expert supply chain analyst. 
-    Always use your available tools to fetch REAL data from the warehouse database before answering questions about stock, reordering, or anomalies.
-    Never hallucinate numbers. If the data is empty, say so.
+    Always use your available tools to fetch REAL data from the warehouse database or SOP knowledge base before answering questions.
+    Never hallucinate numbers or SOPs. If the data is empty, say so.
+    IMPORTANT FOR LOCAL/FALLBACK MODELS: If you cannot determine which tool to use or fail to emit a valid tool call, DO NOT guess or hallucinate. Instead, reply EXACTLY with: "I couldn't determine which data to query. Could you please rephrase your request?"
     Present your findings professionally.`,
+    maxSteps: 3,
     tools: {
       get_stock_level: tool({
         description: 'Get the current stock level and basic details for a specific SKU.',
@@ -79,6 +86,49 @@ export async function POST(req: Request) {
             totalFound: anomalies.length,
             returned: sortedAnomalies.length,
             anomalies: sortedAnomalies
+          };
+        }
+      }),
+
+      search_sops: tool({
+        description: 'Search the warehouse Standard Operating Procedures (SOPs) and knowledge base for policies, guidelines, and instructions.',
+        parameters: z.object({
+          query: z.string().describe('The search query to find relevant SOPs (e.g. "how to handle damaged goods")')
+        }),
+        // @ts-ignore
+        execute: async ({ query }: { query: string }) => {
+          // 1. Embed the user's query
+          const embedResponse = await ai.models.embedContent({
+            model: 'text-embedding-004',
+            contents: query,
+          });
+          
+          const queryEmbedding = embedResponse.embeddings?.[0]?.values;
+          if (!queryEmbedding) {
+            return { error: 'Failed to embed query for SOP search.' };
+          }
+
+          // 2. Perform Vector Similarity Search using pgvector
+          const similarChunks = await prisma.$queryRaw<
+            Array<{ title: string; content: string; similarity: number }>
+          >`
+            SELECT 
+              d.title,
+              c.content, 
+              1 - (c.embedding <=> ${queryEmbedding}::vector) as similarity
+            FROM "DocumentChunk" c
+            JOIN "KnowledgeDocument" d ON c."documentId" = d.id
+            ORDER BY c.embedding <=> ${queryEmbedding}::vector
+            LIMIT 5
+          `;
+
+          if (similarChunks.length === 0) {
+            return { result: 'No relevant SOPs found for this query.' };
+          }
+
+          return {
+            totalFound: similarChunks.length,
+            documents: similarChunks.map(c => ({ title: c.title, content: c.content }))
           };
         }
       })

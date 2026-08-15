@@ -2,17 +2,13 @@ import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ArrowUpRight, ArrowDownRight, MapPin } from 'lucide-react';
 import { InventoryChart } from '@/components/dashboard/inventory-chart';
+import { calculateDynamicReorderPoints } from '@/lib/services/demandForecasting';
 
 export default async function DashboardPage() {
   const productsCount = await prisma.product.count();
   const warehousesCount = await prisma.warehouse.count();
-  const lowStockCount = await prisma.inventory.count({
-    where: {
-      quantity: {
-        lt: 10
-      }
-    }
-  });
+  const forecasts = await calculateDynamicReorderPoints();
+  const lowStockCount = forecasts.filter(f => f.status === 'REORDER_NOW' || f.status === 'CRITICAL').length;
 
   // Aggregate data for the chart
   const products = await prisma.product.findMany({

@@ -1,46 +1,38 @@
-import { calculateDynamicReorderPoints } from '../src/lib/services/demandForecasting';
+import "dotenv/config";
 import { prisma } from '../src/lib/prisma';
+import { calculateDynamicReorderPoints } from '../src/lib/services/demandForecasting';
 
-async function main() {
-  console.log('Running Demand Forecasting & Dynamic Reorder Point Engine...\n');
-
-  // We test using today's date, looking back 60 days to calculate the EMA
+async function runValidation() {
+  console.log("===============================================================");
+  console.log("             DEMAND FORECASTING VALIDATION MATRIX              ");
+  console.log("===============================================================");
+  
   const forecasts = await calculateDynamicReorderPoints(new Date(), 60);
 
-  console.log(String().padEnd(95, '-'));
-  console.log(
-    'SKU'.padEnd(15) + 
-    'STOCK'.padStart(8) + 
-    'EMA/DAY'.padStart(10) + 
-    'STDDEV'.padStart(10) + 
-    'S.STOCK'.padStart(10) + 
-    'REORDER PT'.padStart(12) + 
-    '  STATUS'
-  );
-  console.log(String().padEnd(95, '-'));
+  const tableData = forecasts.map(f => ({
+    SKU: f.sku,
+    'Avg Dmd': f.averageDailyDemand.toFixed(2),
+    'Std Dev': f.demandVariance.toFixed(2),
+    'Safety Stock': f.safetyStock,
+    'Reorder Pt': f.suggestedReorderPoint,
+    'Stock': f.currentStock,
+    Status: f.status,
+    Confidence: f.confidence
+  }));
 
-  for (const f of forecasts) {
-    console.log(
-      f.sku.padEnd(15) + 
-      f.currentStock.toString().padStart(8) + 
-      f.averageDailyDemand.toFixed(1).padStart(10) + 
-      f.demandVariance.toFixed(1).padStart(10) + 
-      f.safetyStock.toString().padStart(10) + 
-      f.suggestedReorderPoint.toString().padStart(12) + 
-      '  ' + f.status
-    );
-  }
-  
-  console.log(String().padEnd(95, '-'));
-  console.log('\nDefinitions:');
-  console.log('EMA/DAY: Exponential Moving Average of Daily Demand (weights recent data higher)');
-  console.log('STDDEV: Standard Deviation of daily demand (noise level)');
-  console.log('S.STOCK: Safety Stock buffer = Z(1.65) * StdDev * sqrt(LeadTime)');
-  console.log('REORDER PT: Dynamic Threshold = (EMA * LeadTime) + Safety Stock');
+  console.table(tableData);
+
+  console.log("===============================================================");
+  console.log("Edge Case Checks:");
+  const deadStock = forecasts.filter(f => f.confidence === 'low_demand');
+  const newSku = forecasts.filter(f => f.confidence === 'low');
+  const noLeadTime = forecasts.filter(f => f.confidence === 'no_lead_time_data');
+
+  console.log(`- Dead Stock SKUs (low_demand): ${deadStock.length}`);
+  console.log(`- New SKUs (low): ${newSku.length}`);
+  console.log(`- Missing Lead Time (no_lead_time_data): ${noLeadTime.length}`);
 }
 
-main()
+runValidation()
   .catch(console.error)
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());

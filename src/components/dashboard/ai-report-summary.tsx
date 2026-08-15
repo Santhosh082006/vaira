@@ -5,14 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Loader2, Send, Database, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export function AiReportSummary({ inventoryData }: { inventoryData?: any }) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = (useChat as any)({
-    api: '/api/chat',
-  });
+  const [input, setInput] = useState('');
+  const { messages, sendMessage, status } = useChat();
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
+    setInput('');
+  };
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
