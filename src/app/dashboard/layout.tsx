@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Package, MapPin, ShoppingCart, LayoutDashboard, Settings, LogOut, Box, Sparkles, Book } from 'lucide-react';
+import { Package, MapPin, ShoppingCart, LayoutDashboard, Settings, LogOut, Box, LineChart, FileText } from 'lucide-react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -29,8 +29,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <NavItem href="/dashboard/customers" icon={<ShoppingCart size={18} />} label="Customers" />
             <NavItem href="/dashboard/warehouses" icon={<MapPin size={18} />} label="Warehouses" />
             <NavItem href="/dashboard/orders" icon={<ShoppingCart size={18} />} label="Orders" />
-            <NavItem href="/dashboard/reports" icon={<Sparkles size={18} />} label="AI Insights" />
-            <NavItem href="/dashboard/knowledge" icon={<Book size={18} />} label="Knowledge Base" />
+            <NavItem href="/dashboard/reports" icon={<LineChart size={18} />} label="Intelligence" />
+            <NavItem href="/dashboard/knowledge" icon={<FileText size={18} />} label="SOPs" />
             <NavItem href="/dashboard/audit-logs" icon={<Box size={18} />} label="Audit Logs" />
             <NavItem href="/dashboard/settings" icon={<Settings size={18} />} label="Settings" />
           </nav>

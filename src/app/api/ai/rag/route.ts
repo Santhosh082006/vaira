@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       .map(chunk => `[Document: ${chunk.title}]\n${chunk.content}`)
       .join('\n\n---\n\n');
 
-    const systemPrompt = `You are Vaira AI, the intelligent warehouse assistant.
+    const systemPrompt = `You are the Vaira Operations Assistant.
 You have been provided with knowledge base documents from the warehouse.
 Answer the user's question using ONLY the context provided below.
 If the answer cannot be found in the context, politely say "I cannot find the answer to this in the warehouse knowledge base."

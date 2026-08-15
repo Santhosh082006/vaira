@@ -1,106 +1,111 @@
 "use client";
 
-import { useState } from 'react';
+import { useChat } from '@ai-sdk/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Loader2, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Activity, Loader2, Send, Database, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useRef, useEffect } from 'react';
 
-interface AiReportSummaryProps {
-  inventoryData: any;
-}
+export function AiReportSummary({ inventoryData }: { inventoryData?: any }) {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = (useChat as any)({
+    api: '/api/chat',
+  });
 
-export function AiReportSummary({ inventoryData }: AiReportSummaryProps) {
-  const [summary, setSummary] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const generateInsight = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // We pass only aggregated data to save tokens and prevent huge payloads
-      const totalItems = inventoryData.length;
-      const lowStockItems = inventoryData.filter((i: any) => i.quantity < 10).map((i: any) => ({ sku: i.product.sku, name: i.product.name, qty: i.quantity }));
-      const outOfStockItems = inventoryData.filter((i: any) => i.quantity === 0).map((i: any) => ({ sku: i.product.sku, name: i.product.name }));
-
-      const res = await fetch('/api/ai/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          contextData: { 
-            totalItems, 
-            lowStockItems, 
-            outOfStockItems, 
-            date: new Date().toISOString()
-          } 
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate insight');
-      
-      setSummary(data.summary);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Auto-scroll to bottom of chat
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button onClick={generateInsight} disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white h-9">
-          {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-          {summary ? 'Regenerate Insight' : 'Generate New Insight'}
-        </Button>
-      </div>
-
-      {error && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-md text-sm">
-          {error}
-        </div>
-      )}
-
-      {summary ? (
-        <Card className="shadow-sm border-blue-200 bg-blue-50/10">
-          <CardHeader className="flex flex-row items-center gap-2 pb-2">
-            <Sparkles className="h-5 w-5 text-blue-600" />
-            <CardTitle className="text-base font-semibold text-slate-900">AI Executive Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
-              {summary}
+    <Card className="shadow-sm border-blue-200 flex flex-col h-[600px]">
+      <CardHeader className="flex flex-row items-center gap-2 pb-2 bg-blue-50/50 border-b border-blue-100">
+        <Activity className="h-5 w-5 text-blue-600" />
+        <CardTitle className="text-base font-semibold text-slate-900">
+          Operations Intelligence
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+            <Database className="w-12 h-12 text-slate-300" />
+            <p className="text-sm text-center max-w-sm">
+              Ask me about reorder candidates, current stock levels, or to scan for recent anomalies in the warehouse.
+            </p>
+            <div className="flex gap-2 text-xs">
+              <span className="px-2 py-1 bg-white border rounded-md shadow-sm">"What should we reorder?"</span>
+              <span className="px-2 py-1 bg-white border rounded-md shadow-sm">"Check for anomalies"</span>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="shadow-sm border-blue-100 bg-blue-50/30 opacity-60">
-            <CardHeader className="flex flex-row items-center gap-2 pb-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-base font-semibold text-slate-900">Fulfillment Velocity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                <p>Click "Generate New Insight" to analyze real-time fulfillment velocity.</p>
+          </div>
+        ) : (
+          messages.map((m: any) => (
+            <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div 
+                className={`max-w-[80%] rounded-lg p-3 text-sm shadow-sm ${
+                  m.role === 'user' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white border border-slate-200 text-slate-800'
+                }`}
+              >
+                {/* Render reasoning trace (tool calls) */}
+                {m.toolInvocations && m.toolInvocations.length > 0 && (
+                  <div className="mb-2 p-2 bg-slate-100 rounded-md border border-slate-200 text-xs font-mono text-slate-600 space-y-1">
+                    {m.toolInvocations.map((tool: any) => (
+                      <div key={tool.toolCallId} className="flex items-start gap-1.5">
+                        <Database className="w-3.5 h-3.5 mt-0.5 text-indigo-500" />
+                        <div>
+                          <span className="text-indigo-600 font-semibold">{tool.toolName}</span>
+                          <span className="text-slate-400">({JSON.stringify(tool.args)})</span>
+                          {tool.state === 'result' ? (
+                            <div className="text-emerald-600 mt-0.5 flex items-center gap-1">
+                              <span>✓ Data retrieved</span>
+                            </div>
+                          ) : (
+                            <div className="text-amber-600 mt-0.5 flex items-center gap-1 animate-pulse">
+                              <Loader2 className="w-3 h-3 animate-spin" /> Querying database...
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Render Text Content */}
+                <div className="whitespace-pre-wrap leading-relaxed">
+                  {m.content}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          ))
+        )}
+        {isLoading && messages[messages.length - 1]?.role === 'user' && (
+          <div className="flex items-start">
+            <div className="bg-white border border-slate-200 rounded-lg p-3 text-sm shadow-sm flex items-center gap-2 text-slate-500">
+              <Loader2 className="w-4 h-4 animate-spin" /> Thinking...
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </CardContent>
 
-          <Card className="shadow-sm border-amber-200 bg-amber-50/30 opacity-60">
-            <CardHeader className="flex flex-row items-center gap-2 pb-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <CardTitle className="text-base font-semibold text-slate-900">Stock Risk Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm text-slate-700 leading-relaxed">
-                <p>Click "Generate New Insight" to detect potential stockout risks based on current trajectories.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-    </div>
+      <div className="p-4 bg-white border-t border-slate-100">
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input 
+            value={input} 
+            onChange={handleInputChange} 
+            placeholder="Query operations..." 
+            className="flex-1 focus-visible:ring-blue-500"
+            disabled={isLoading}
+          />
+          <Button type="submit" disabled={isLoading || !input.trim()} className="bg-blue-600 hover:bg-blue-700 w-10 p-0">
+            <Send className="w-4 h-4" />
+          </Button>
+        </form>
+      </div>
+    </Card>
   );
 }

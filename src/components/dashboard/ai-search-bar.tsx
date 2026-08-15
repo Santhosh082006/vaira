@@ -49,11 +49,11 @@ export function AiSearchBar() {
     <div className="relative w-full max-w-xl">
       <form onSubmit={handleSearch} className="relative group">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Sparkles className="h-4 w-4 text-blue-500" />
+          <Search className="h-4 w-4 text-blue-500" />
         </div>
         <Input
           type="text"
-          placeholder="Ask AI: 'Show me low stock electronics'..."
+          placeholder="Search operations: 'Show me low stock electronics'..."
           className="pl-10 pr-4 w-full bg-slate-100/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all shadow-sm"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -75,7 +75,7 @@ export function AiSearchBar() {
           <div className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-20 max-h-96 overflow-y-auto">
             {isSearching ? (
               <div className="p-4 text-sm text-slate-500 flex items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" /> AI is analyzing your request...
+                <Loader2 className="h-4 w-4 animate-spin" /> Querying database...
               </div>
             ) : error ? (
               <div className="p-4 text-sm text-red-500">

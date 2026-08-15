@@ -1,0 +1,138 @@
+[
+  {
+    "date": "2026-02-17",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 15,
+    "actualDemand": 128,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-02-28",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_drop",
+    "expectedDemand": 15,
+    "actualDemand": 0,
+    "notes": "Injected anomaly: volume_drop"
+  },
+  {
+    "date": "2026-03-07",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 15,
+    "actualDemand": 49,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-03-16",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 15,
+    "actualDemand": 96,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-05-26",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 15,
+    "actualDemand": 44,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-05-30",
+    "sku": "SYN-MKB-01",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 15,
+    "actualDemand": 72,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-05-07",
+    "sku": "SYN-WM-02",
+    "anomalyType": "volume_drop",
+    "expectedDemand": 40,
+    "actualDemand": 0,
+    "notes": "Injected anomaly: volume_drop"
+  },
+  {
+    "date": "2026-05-15",
+    "sku": "SYN-WM-02",
+    "anomalyType": "impossible_value",
+    "expectedDemand": 40,
+    "actualDemand": 1397,
+    "notes": "Injected anomaly: impossible_value"
+  },
+  {
+    "date": "2026-06-08",
+    "sku": "SYN-WM-02",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 40,
+    "actualDemand": 285,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-06-18",
+    "sku": "SYN-WM-02",
+    "anomalyType": "volume_drop",
+    "expectedDemand": 40,
+    "actualDemand": 0,
+    "notes": "Injected anomaly: volume_drop"
+  },
+  {
+    "date": "2026-08-10",
+    "sku": "SYN-WM-02",
+    "anomalyType": "impossible_value",
+    "expectedDemand": 40,
+    "actualDemand": 1226,
+    "notes": "Injected anomaly: impossible_value"
+  },
+  {
+    "date": "2026-04-22",
+    "sku": "SYN-MON-03",
+    "anomalyType": "impossible_value",
+    "expectedDemand": 6,
+    "actualDemand": 352,
+    "notes": "Injected anomaly: impossible_value"
+  },
+  {
+    "date": "2026-05-12",
+    "sku": "SYN-CAB-04",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 106,
+    "actualDemand": 840,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-08-08",
+    "sku": "SYN-CAB-04",
+    "anomalyType": "volume_drop",
+    "expectedDemand": 89,
+    "actualDemand": 0,
+    "notes": "Injected anomaly: volume_drop"
+  },
+  {
+    "date": "2026-04-21",
+    "sku": "SYN-CH-05",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 2,
+    "actualDemand": 12,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-06-29",
+    "sku": "SYN-CH-05",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 2,
+    "actualDemand": 8,
+    "notes": "Injected anomaly: volume_spike"
+  },
+  {
+    "date": "2026-07-24",
+    "sku": "SYN-CH-05",
+    "anomalyType": "volume_spike",
+    "expectedDemand": 2,
+    "actualDemand": 10,
+    "notes": "Injected anomaly: volume_spike"
+  }
+]
