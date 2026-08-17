@@ -133,8 +133,8 @@ export default async function DashboardPage() {
                       {reorderCandidates.map(f => (
                         <tr key={f.sku} className="hover:bg-slate-50/50">
                           <td className="px-4 py-3 font-mono text-slate-900">{f.sku}</td>
-                          <td className="px-4 py-3 text-right font-medium">{Math.round(f.stock)}</td>
-                          <td className="px-4 py-3 text-right text-slate-500">{Math.round(f.reorderPoint)}</td>
+                          <td className="px-4 py-3 text-right font-medium">{Math.round(f.currentStock)}</td>
+                          <td className="px-4 py-3 text-right text-slate-500">{Math.round(f.suggestedReorderPoint)}</td>
                           <td className="px-4 py-3 text-right">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${f.status === 'CRITICAL' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                               {f.status.replace('_', ' ')}
@@ -178,7 +178,7 @@ export default async function DashboardPage() {
                           <span className="font-mono">{new Date(tx.createdAt).toLocaleDateString()}</span>
                         </p>
                         <div className="flex justify-between items-center mt-1">
-                           <span className="text-xs text-slate-400">{tx.inventory.bin.zone.name} / {tx.inventory.bin.name}</span>
+                           <span className="text-xs text-slate-400">{tx.inventory.bin.rack.zone.name} / {tx.inventory.bin.name}</span>
                            <span className={`font-semibold ${isAnomaly ? 'text-purple-600' : isPositive ? 'text-emerald-600' : 'text-slate-700'}`}>
                              {isPositive ? '+' : ''}{tx.quantityChange}
                            </span>

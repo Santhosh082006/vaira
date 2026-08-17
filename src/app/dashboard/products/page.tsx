@@ -56,8 +56,6 @@ export default async function ProductsPage() {
                   badgeClass += "bg-red-100 text-red-800 border border-red-200";
                 } else if (status === 'REORDER_NOW') {
                   badgeClass += "bg-amber-100 text-amber-800 border border-amber-200";
-                } else if (status === 'DEAD_STOCK') {
-                  badgeClass += "bg-slate-100 text-slate-800 border border-slate-200";
                 } else {
                   badgeClass += "bg-emerald-100 text-emerald-800 border border-emerald-200";
                 }
@@ -72,11 +70,11 @@ export default async function ProductsPage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-right text-slate-500">
-                      {forecast ? Math.round(forecast.reorderPoint) : product.reorderLevel}
+                      {forecast ? Math.round(forecast.suggestedReorderPoint) : product.reorderLevel}
                     </TableCell>
                     <TableCell className="text-right">
                       <span className={badgeClass}>
-                        {totalStock} {status !== 'HEALTHY' && status !== 'DEAD_STOCK' ? `(${status.replace('_', ' ')})` : ''}
+                        {totalStock} {status !== 'HEALTHY' ? `(${status.replace('_', ' ')})` : ''}
                       </span>
                     </TableCell>
                   </TableRow>
