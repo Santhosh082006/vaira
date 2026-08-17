@@ -47,11 +47,9 @@ export default function ForgotPasswordPage() {
                 <p className="text-sm font-medium">Check your email</p>
                 <p className="text-xs text-green-600/80">We've sent a password reset link to {email}</p>
               </div>
-              <Button asChild variant="outline" className="w-full h-10 border-slate-200 text-slate-700 font-medium hover:bg-slate-50 hover:text-slate-900">
-                <Link href="/login">
-                  Return to login
-                </Link>
-              </Button>
+              <Link href="/login" className="inline-flex items-center justify-center rounded-md w-full h-10 border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 hover:text-slate-900">
+                Return to login
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
