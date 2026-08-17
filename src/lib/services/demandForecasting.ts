@@ -5,7 +5,7 @@ export interface ForecastResult {
   productName: string;
   currentStock: number;
   averageDailyDemand: number;
-  demandVariance: number;
+  demandStdDev: number;
   leadTimeDays: number;
   safetyStock: number;
   suggestedReorderPoint: number;
@@ -165,7 +165,7 @@ export async function calculateDynamicReorderPoints(
       productName: product.name,
       currentStock,
       averageDailyDemand: Number(ema.toFixed(2)),
-      demandVariance: Number(stdDev.toFixed(2)),
+      demandStdDev: Number(stdDev.toFixed(2)),
       leadTimeDays,
       safetyStock,
       suggestedReorderPoint,
