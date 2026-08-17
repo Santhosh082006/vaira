@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { calculateDynamicReorderPoints } from '@/lib/services/demandForecasting';
 
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
@@ -10,6 +11,9 @@ export default async function ProductsPage() {
       inventory: true
     }
   });
+
+  const dynamicForecasts = await calculateDynamicReorderPoints();
+  const forecastMap = new Map(dynamicForecasts.map(f => [f.sku, f]));
 
   return (
     <div className="space-y-6">
@@ -44,7 +48,19 @@ export default async function ProductsPage() {
             ) : (
               products.map((product) => {
                 const totalStock = product.inventory.reduce((acc, inv) => acc + inv.quantity, 0);
-                const isLowStock = totalStock <= product.reorderLevel;
+                const forecast = forecastMap.get(product.sku);
+                const status = forecast?.status || 'HEALTHY';
+                
+                let badgeClass = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ";
+                if (status === 'CRITICAL') {
+                  badgeClass += "bg-red-100 text-red-800 border border-red-200";
+                } else if (status === 'REORDER_NOW') {
+                  badgeClass += "bg-amber-100 text-amber-800 border border-amber-200";
+                } else if (status === 'DEAD_STOCK') {
+                  badgeClass += "bg-slate-100 text-slate-800 border border-slate-200";
+                } else {
+                  badgeClass += "bg-emerald-100 text-emerald-800 border border-emerald-200";
+                }
 
                 return (
                   <TableRow key={product.id} className="border-slate-100 hover:bg-slate-50 transition-colors">
@@ -55,17 +71,13 @@ export default async function ProductsPage() {
                         {product.category.name}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right text-slate-500">{product.reorderLevel}</TableCell>
+                    <TableCell className="text-right text-slate-500">
+                      {forecast ? Math.round(forecast.reorderPoint) : product.reorderLevel}
+                    </TableCell>
                     <TableCell className="text-right">
-                      {isLowStock ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                          {totalStock} (Low)
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 text-sm font-medium text-slate-900">
-                          {totalStock}
-                        </span>
-                      )}
+                      <span className={badgeClass}>
+                        {totalStock} {status !== 'HEALTHY' && status !== 'DEAD_STOCK' ? `(${status.replace('_', ' ')})` : ''}
+                      </span>
                     </TableCell>
                   </TableRow>
                 );
