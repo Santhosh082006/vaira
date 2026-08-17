@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const user = await prisma.user.updateMany({
-      where: { email: 'admin@vaira.app' },
       data: { role: 'ADMIN' }
     });
     return NextResponse.json({ success: true, updated: user.count });

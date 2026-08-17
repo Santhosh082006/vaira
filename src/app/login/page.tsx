@@ -71,7 +71,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-slate-700 font-medium text-sm">Password</Label>
-                <Link href="#" onClick={(e) => { e.preventDefault(); alert('Forgot password functionality coming soon!'); }} className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                <Link href="/forgot-password" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
                   Forgot password?
                 </Link>
               </div>

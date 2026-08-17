@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     // @ts-ignore - Ignore type error between LanguageModelV1 and LanguageModel
-    model: openai('gpt-4o-mini'),
+    model: openai(process.env.OPENAI_API_KEY?.startsWith('sk-or-') ? 'openai/gpt-4o-mini' : 'gpt-4o-mini'),
     messages,
     system: `You are Vaira's Operations Assistant. 
     You are an expert supply chain analyst. 
