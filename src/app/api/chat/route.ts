@@ -1,15 +1,15 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
-
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'MISSING_OPENAI_KEY',
-  baseURL: process.env.OPENAI_API_KEY?.startsWith('sk-or-') ? 'https://openrouter.ai/api/v1' : 'https://api.openai.com/v1'
-});
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { calculateDynamicReorderPoints } from '@/lib/services/demandForecasting';
 import { detectAnomalies } from '@/lib/services/anomalyDetection';
 import { GoogleGenAI } from '@google/genai';
+
+const openai = createOpenAI({
+  apiKey: process.env.OPENAI_API_KEY || 'MISSING_OPENAI_KEY',
+  baseURL: process.env.OPENAI_API_KEY?.startsWith('sk-or-') ? 'https://openrouter.ai/api/v1' : 'https://api.openai.com/v1'
+});
 
 const ai = new GoogleGenAI({ 
   apiKey: process.env.GEMINI_API_KEY || 'MISSING_GEMINI_KEY' 
