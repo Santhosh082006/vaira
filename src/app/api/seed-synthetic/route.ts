@@ -36,6 +36,12 @@ export async function GET() {
     await prisma.supplier.deleteMany();
     await prisma.category.deleteMany();
 
+    // Ensure admin@vaira.app has the ADMIN role so they can upload SOPs
+    await prisma.user.updateMany({
+      where: { email: 'admin@vaira.app' },
+      data: { role: 'ADMIN' }
+    });
+
     // 1. Ensure basic hierarchy exists
     let category = await prisma.category.findFirst();
     if (!category) {
