@@ -12,7 +12,7 @@ async function runValidation() {
   const tableData = forecasts.map(f => ({
     SKU: f.sku,
     'Avg Dmd': f.averageDailyDemand.toFixed(2),
-    'Std Dev': f.demandVariance.toFixed(2),
+    'Std Dev': f.demandStdDev.toFixed(2),
     'Safety Stock': f.safetyStock,
     'Reorder Pt': f.suggestedReorderPoint,
     'Stock': f.currentStock,
